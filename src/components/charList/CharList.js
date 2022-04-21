@@ -9,21 +9,30 @@ class CharList extends Component {
     state = {
         chars: [],
         loading: true,
-        error: false
+        error: false,
+        offset: 210,
+        charEnded: false
       }
 
     marvelService = new MarvelService();
 
     componentDidMount() {
-        this.marvelService.getAllCharacters()
-            .then(this.onCharLoaded)
-            .catch(this.onError)
+        this.onLoadChars();
     }
 
+    // componentDidUpdate() {
+    //     this.onLoadChars();
+    // }
+
     onCharLoaded = (chars) => {
-        this.setState({
-            chars,
-            loading: false})
+        let ended = false;
+        if (chars.length < 9) {
+            ended = true;
+        }
+        this.setState( state => ({
+            chars: [...state.chars, ...chars],
+            loading: false,
+            charEnded: ended}))
     }
 
     onError = () => {
@@ -31,6 +40,27 @@ class CharList extends Component {
             loading: false,
             error: true
         })
+    }
+
+    onCharLoading = () => {
+        this.setState({
+            loading: true
+        })
+    }
+
+    onChangeChars = () => {
+        new Promise(resolve => 
+            this.setState(({offset}) => ({
+                offset: offset < 1549 ? offset + 9 : 210
+            }), resolve)
+        ).then(this.onLoadChars)
+    }
+
+    onLoadChars = () => {
+        this.onCharLoading()
+        this.marvelService.getAllCharacters(this.state.offset)
+            .then(this.onCharLoaded)
+            .catch(this.onError)
     }
 
     updateChars(arr) {
@@ -57,20 +87,23 @@ class CharList extends Component {
     }
 
     render () {
-        const {chars, loading, error} = this.state;
+        const {chars, loading, error, charEnded} = this.state;
 
         const items = this.updateChars(chars);
 
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? items : null;
+        const content = !error ? items : null;
 
         return (
             <div className="char__list">
                 {errorMessage}
-                {spinner}
                 {content}
-                <button className="button button__main button__long">
+                {spinner}
+                <button className="button button__main button__long"
+                        onClick={this.onChangeChars}
+                        disabled={loading}
+                        style={{'display' : charEnded ? 'none' : 'block'}}>
                     <div className="inner">load more</div>
                 </button>
             </div>
