@@ -1,8 +1,12 @@
 import { Component } from 'react/cjs/react.production.min';
+import PropTypes from 'prop-types';
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMassage';
 import MarvelService from '../../services/MarvelService';
 import './charList.scss';
+
+
 
 class CharList extends Component {
     
@@ -18,11 +22,18 @@ class CharList extends Component {
 
     componentDidMount() {
         this.onLoadChars();
+        window.addEventListener('scroll', this.onScroll);
     }
 
-    // componentDidUpdate() {
-    //     this.onLoadChars();
-    // }
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.onScroll);
+    }
+
+    onScroll = () => {
+        if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight && !this.state.loading) {
+            this.onChangeChars();
+        }
+    }
 
     onCharLoaded = (chars) => {
         let ended = false;
@@ -111,5 +122,7 @@ class CharList extends Component {
     }
     
 }
+
+
 
 export default CharList;
