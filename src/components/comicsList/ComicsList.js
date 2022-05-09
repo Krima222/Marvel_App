@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import {Link} from 'react-router-dom';
+
 import './comicsList.scss';
-import uw from '../../resources/img/UW.png';
-import xMen from '../../resources/img/x-men.png';
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMassage';
@@ -37,15 +37,15 @@ const ComicsList = () => {
 
     function updateComics(arr) {
 
-        const items = arr.map((item, i) => {
+        const items = arr.map(item => {
             return (
                 <li className="comics__item"
-                key={i}>
-                    <a href="#">
+                key={item.id}>
+                    <Link to={`/comics/${item.id}`}>
                         <img src={item.thumbnail} alt={item.name} className="comics__item-img"/>
                         <div className="comics__item-name">{item.name}</div>
                         <div className="comics__item-price">{item.price}</div>
-                    </a>
+                    </Link>
                 </li>
             )
         });
